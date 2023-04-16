@@ -99,6 +99,8 @@ func (al Alog) ErrorChannel() <-chan error {
 // Stop shuts down the logger. It will wait for all pending messages to be written and then return.
 // The logger will no longer function after this method has been called.
 func (al Alog) Stop() {
+	al.shutdownCh <- struct{}{}
+	_ = <-al.shutdownCompleteCh
 }
 
 // Write synchronously sends the message to the log output
