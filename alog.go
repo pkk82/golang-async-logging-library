@@ -40,7 +40,9 @@ func New(w io.Writer) *Alog {
 // the caller from being blocked.
 func (al Alog) Start() {
 	for msg := range al.msgCh {
-		al.write(msg, nil)
+		go func(m string) {
+			al.write(m, nil)
+		}(msg)
 	}
 }
 
@@ -52,14 +54,18 @@ func (al Alog) formatMessage(msg string) string {
 }
 
 func (al Alog) write(msg string, wg *sync.WaitGroup) {
+	defer func() {
+		if p := recover(); p != nil {
+			al.m.Unlock()
+		}
+	}()
+
 	message := al.formatMessage(msg)
 	al.m.Lock()
 	_, err := al.dest.Write([]byte(message))
 	al.m.Unlock()
 	if err != nil {
 		al.errorCh <- err
-	} else {
-		al.errorCh <- nil
 	}
 }
 
