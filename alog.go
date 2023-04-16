@@ -38,7 +38,9 @@ func New(w io.Writer) *Alog {
 // Start begins the message loop for the asynchronous logger. It should be initiated as a goroutine to prevent
 // the caller from being blocked.
 func (al Alog) Start() {
-
+	for msg := range al.msgCh {
+		al.write(msg, nil)
+	}
 }
 
 func (al Alog) formatMessage(msg string) string {
