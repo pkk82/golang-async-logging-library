@@ -58,6 +58,8 @@ func (al Alog) write(msg string, wg *sync.WaitGroup) {
 	al.m.Unlock()
 	if err != nil {
 		al.errorCh <- err
+	} else {
+		al.errorCh <- nil
 	}
 }
 
